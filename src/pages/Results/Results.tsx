@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { StoreState } from '../../store/reducers';
 import { runSimulations, clearCurrent } from '../../store/actions';
@@ -10,9 +10,10 @@ import { parseDataForChart } from '../../util/chart';
 import { ReactComponent as RepeatArrow } from '../../assets/arrow-repeat.svg';
 
 const Results: React.FC = () => {
-  const history = useHistory();
-  const dispatch = useDispatch();
   const { current } = useSelector((state: StoreState) => state.simulation);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const ref = useRef<HTMLDivElement>(null);
 
   const graph = useMemo(() => {
     if (!current) return null;
@@ -41,6 +42,11 @@ const Results: React.FC = () => {
 
   const handleRerun = () => {
     current && dispatch(runSimulations(current.config));
+    ref.current &&
+      ref.current.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
   };
 
   useEffect(() => {
@@ -131,7 +137,7 @@ const Results: React.FC = () => {
               <p style={{ flex: 2 }}>Profit</p>
               <p style={{ flex: 1, paddingRight: 5 }}>Growth(%)</p>
             </div>
-            <div className={classes.results}>
+            <div className={classes.results} ref={ref}>
               {current.history.map((r, i) => (
                 <ResultCard
                   key={i}
